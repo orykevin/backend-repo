@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/core/app.js",
-    "dev": "nodemon --watch './**/*.ts' --exec \"npx ts-node\" core/app.ts"
+    "dev": "nodemon --watch './**/*.ts' --exec \"npx ts-node\" core/server.ts",
+    "emulate": "npm run build && firebase emulators:start --only functions"
   },
   "keywords": [
     "express",

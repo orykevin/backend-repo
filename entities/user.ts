@@ -1,12 +1,13 @@
+import { admin } from "../config/firebaseConfig";
+
 export interface User {
   id: string;
   email?: string | null;
   displayName?: string | null;
   createdAt: admin.firestore.Timestamp;
-  lastLogin?: admin.firestore.Timestamp;
-  customData?: {
-    [key: string]: any;
-  };
+  hobby?: string;
+  address?: string;
+  phoneNumber?: string;
 }
 
 export type UserUpdateData = Partial<Omit<User, 'id' | 'email' | 'createdAt'>>;

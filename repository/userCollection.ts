@@ -10,29 +10,16 @@ const getUsersCollection = () => {
   return db.collection(USERS_COLLECTION);
 };
 
-export const getUserData = async (userId: string): Promise<User | null> => {
-  try {
-    const userRef = getUsersCollection().doc(userId);
-    const docSnap = await userRef.get();
-
-    if (docSnap.exists) {
-      const data = docSnap.data();
-      return {
-        id: docSnap.id,
-        email: data?.email,
-        displayName: data?.displayName,
-        createdAt: data?.createdAt as admin.firestore.Timestamp,
-        lastLogin: data?.lastLogin as admin.firestore.Timestamp | undefined,
-        customData: data?.customData,
-      } as User;
-    } else {
-      console.log(`No user document found for ID: ${userId}`);
-      return null;
-    }
-  } catch (error) {
-    console.error(`Error fetching user data for ID ${userId}:`, error);
-    throw new Error('Failed to fetch user data from Firestore.');
+export const getUserData = async (userId: string) => {
+  if (!db) throw new Error('db not found')
+  const userRef = db.collection("USERS").doc(userId);
+  const userSnap = await userRef.get();
+  if (!userSnap.exists) {
+    return null;
   }
+
+  const userData = userSnap.data();
+  return userData;
 };
 
 export const updateUserData = async (userId: string, data: UserUpdateData): Promise<void> => {
@@ -45,6 +32,7 @@ export const updateUserData = async (userId: string, data: UserUpdateData): Prom
 
     const docSnap = await userRef.get();
     if (!docSnap.exists) {
+      dataPayload.id = userId
       dataPayload.createdAt = admin.firestore.FieldValue.serverTimestamp() as admin.firestore.Timestamp;
       console.log(`Creating new user document for ID: ${userId}`);
     } else {
@@ -62,7 +50,7 @@ export const updateUserData = async (userId: string, data: UserUpdateData): Prom
 };
 
 
-export const createUserDocumentIfNotExists = async (userId: string, initialData: Omit<UserUpdateData, 'lastLogin'>): Promise<void> => {
+export const createUserDocumentIfNotExists = async (userId: string, initialData: UserUpdateData): Promise<void> => {
   try {
     const userRef = getUsersCollection().doc(userId);
     const docSnap = await userRef.get();
